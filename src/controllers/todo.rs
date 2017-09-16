@@ -1,16 +1,22 @@
-use std::collections::HashMap;
+use std::error::Error;
 
 use mime;
 use hyper::{StatusCode, Body};
 use hyper::header::Location;
 use hyper::server::{Request, Response};
 use futures::{Future, Stream};
+use serde_urlencoded;
 
 use gotham::state::{State, FromState};
 use gotham::middleware::session::SessionData;
 use gotham::http::response::create_response;
 
 use session::Session;
+
+#[derive(Deserialize)]
+struct FormData {
+    item: String,
+}
 
 pub fn index(state: State, _req: Request) -> (State, Response) {
     let response = {
@@ -34,11 +40,11 @@ pub fn add(mut state: State, req: Request) -> (State, Response) {
     let response = {
         let session = SessionData::<Session>::borrow_mut_from(&mut state);
 
-        let req_body = ugly_body_reader(req.body());
-        let data = ugly_form_body_parser(&req_body);
+        let data_result = ugly_body_reader(req.body());
 
-        if let Some(item) = data.get("item") {
-            session.todo_list.push((*item).to_owned());
+        match data_result {
+            Ok(data) => session.todo_list.push(data.item),
+            Err(e) => warn!("failed to parse form body: {}", e),
         }
 
         let mut response = Response::new().with_status(StatusCode::SeeOther);
@@ -113,25 +119,12 @@ fn index_body(items: Vec<String>) -> Vec<u8> {
     out.into_bytes()
 }
 
-// TODO: Remove gratuitous unwrapping
-fn ugly_body_reader(body: Body) -> String {
+fn ugly_body_reader(body: Body) -> Result<FormData, Box<Error>> {
     let mut req_body = Vec::new();
-    for part in body.collect().wait().unwrap() {
+    for part in try!(body.collect().wait()) {
         req_body.extend(part);
     }
 
-    String::from_utf8(req_body).unwrap()
-}
-
-// TODO: Remove gratuitous unwrapping
-fn ugly_form_body_parser<'a>(body: &'a str) -> HashMap<&'a str, &'a str> {
-    let pairs = body.split("&").filter(|pair| pair.contains("="));
-    let mut data = HashMap::new();
-
-    data.extend(pairs.map(|p| {
-        let mut iter = p.split("=");
-        (iter.next().unwrap(), iter.next().unwrap())
-    }));
-
-    data
+    let data = try!(serde_urlencoded::from_bytes::<FormData>(&req_body));
+    Ok(data)
 }
