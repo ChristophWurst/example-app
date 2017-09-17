@@ -121,11 +121,7 @@ fn index_body(items: Vec<String>) -> Vec<u8> {
 }
 
 fn ugly_form_body_parser(body: Body) -> Result<FormData, Box<Error>> {
-    let mut req_body = Vec::new();
-    for part in try!(body.collect().wait()) {
-        req_body.extend(part);
-    }
-
+    let req_body = try!(body.concat2().wait());
     let data = try!(serde_urlencoded::from_bytes::<FormData>(&req_body));
     Ok(data)
 }
