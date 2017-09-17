@@ -40,7 +40,7 @@ pub fn add(mut state: State, req: Request) -> (State, Response) {
     let response = {
         let session = SessionData::<Session>::borrow_mut_from(&mut state);
 
-        let data_result = ugly_body_reader(req.body());
+        let data_result = ugly_form_body_parser(req.body());
 
         match data_result {
             Ok(data) => session.todo_list.push(data.item),
@@ -79,6 +79,7 @@ fn index_body(items: Vec<String>) -> Vec<u8> {
         <!doctype html>
         <html>
             <head>
+                <meta charset="UTF-8">
                 <title>Todo (Session-backed)</title>
             </head>
             <body>
@@ -119,7 +120,7 @@ fn index_body(items: Vec<String>) -> Vec<u8> {
     out.into_bytes()
 }
 
-fn ugly_body_reader(body: Body) -> Result<FormData, Box<Error>> {
+fn ugly_form_body_parser(body: Body) -> Result<FormData, Box<Error>> {
     let mut req_body = Vec::new();
     for part in try!(body.collect().wait()) {
         req_body.extend(part);
