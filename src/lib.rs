@@ -1,9 +1,9 @@
 extern crate hyper;
 extern crate mime;
 extern crate futures;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_urlencoded;
 extern crate fern;
 #[macro_use]
 extern crate log;
