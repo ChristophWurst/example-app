@@ -1,6 +1,6 @@
 # Gotham Example Application
 
-An example application for working with version 0.1 of 
+An example application for working with version 0.1 of
 [the Gotham web framework](https://gotham.rs).
 
 ## License
@@ -18,11 +18,5 @@ All of the following resources are available to assist you learning Gotham:
 * [Our example application](https://github.com/gotham-rs/example-app)
 
 ## Help
-The Gotham core team collaborate on the 
-[#gotham](https://chat.mibbit.com/?server=irc.mozilla.org&channel=%23gotham) 
-channel on irc.mozilla.org. Gotham specific chat and requests for help are 
-both very welcome here.
-
-Additionally the Gotham core team often hang out in
-[#rust-webdev](https://chat.mibbit.com/?server=irc.mozilla.org&channel=%23rust-webdev) and [#rust](https://chat.mibbit.com/?server=irc.mozilla.org&channel=%23rust).
+The Gotham core team collaborate on [Gitter](https://gitter.im/gotham-rs/gotham). Gotham specific chat and requests for help are both very welcome here.
 
